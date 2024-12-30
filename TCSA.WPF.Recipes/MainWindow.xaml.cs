@@ -14,11 +14,13 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
-        Recipes = new ObservableCollection<Recipe>
+        using (var db = new RecipeDbContext())
         {
-            new Recipe { Name = "Spaghetti Bolognese", Details = "Ingredients: Spaghetti, Ground Beef, Tomato Sauce.\nSteps: Cook pasta, make sauce, mix together." },
-            new Recipe { Name = "Pancakes", Details = "Ingredients: Flour, Eggs, Milk.\nSteps: Mix ingredients, cook on a skillet." }
-        };
+            db.Database.EnsureCreated();
+
+            // Load recipes from the database
+            Recipes = new ObservableCollection<Recipe>(db.Recipes.ToList());
+        }
 
         RecipeList.ItemsSource = Recipes;
     }
@@ -37,36 +39,47 @@ public partial class MainWindow : Window
 
     private void AddRecipe_Click(object sender, RoutedEventArgs e)
     {
-        Recipes.Add(new Recipe { Name = "New Recipe", Details = "Details about the recipe." });
+        var newRecipe = new Recipe { Name = "New Recipe", Details = "Details about the recipe." };
+
+        // Add to database
+        using (var db = new RecipeDbContext())
+        {
+            db.Recipes.Add(newRecipe);
+            db.SaveChanges();
+        }
+
+        Recipes.Add(newRecipe);
     }
 
     private void EditRecipe_Click(object sender, RoutedEventArgs e)
     {
         if (RecipeList.SelectedItem is Recipe selectedRecipe)
         {
-            // Prompt user for new details
             var newName = Microsoft.VisualBasic.Interaction.InputBox(
                 "Edit Recipe Name:", "Edit Recipe", selectedRecipe.Name);
             var newDetails = Microsoft.VisualBasic.Interaction.InputBox(
                 "Edit Recipe Details:", "Edit Recipe", selectedRecipe.Details);
 
-            if (!string.IsNullOrWhiteSpace(newName))
+            if (!string.IsNullOrWhiteSpace(newName) && !string.IsNullOrWhiteSpace(newDetails))
             {
                 selectedRecipe.Name = newName;
-            }
-            if (!string.IsNullOrWhiteSpace(newDetails))
-            {
                 selectedRecipe.Details = newDetails;
-            }
 
-            // Refresh ListView to reflect changes
-            RecipeList.Items.Refresh();
+                using (var db = new RecipeDbContext())
+                {
+                    db.Recipes.Update(selectedRecipe);
+                    db.SaveChanges();
+                }
+
+                RecipeList.Items.Refresh();
+            }
         }
         else
         {
             MessageBox.Show("Please select a recipe to edit.", "No Selection", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
+
 
     private void DeleteRecipe_Click(object sender, RoutedEventArgs e)
     {
@@ -78,6 +91,11 @@ public partial class MainWindow : Window
 
             if (result == MessageBoxResult.Yes)
             {
+                using (var db = new RecipeDbContext())
+                {
+                    db.Recipes.Remove(selectedRecipe);
+                    db.SaveChanges();
+                }
                 Recipes.Remove(selectedRecipe);
             }
         }
@@ -86,10 +104,4 @@ public partial class MainWindow : Window
             MessageBox.Show("Please select a recipe to delete.", "No Selection", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
-}
-
-public class Recipe
-{
-    public string Name { get; set; }
-    public string Details { get; set; }
 }
