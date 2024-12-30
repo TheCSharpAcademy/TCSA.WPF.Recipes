@@ -18,7 +18,6 @@ public partial class MainWindow : Window
         {
             db.Database.EnsureCreated();
 
-            // Load recipes from the database
             Recipes = new ObservableCollection<Recipe>(db.Recipes.ToList());
         }
 
@@ -41,7 +40,6 @@ public partial class MainWindow : Window
     {
         var newRecipe = new Recipe { Name = "New Recipe", Details = "Details about the recipe." };
 
-        // Add to database
         using (var db = new RecipeDbContext())
         {
             db.Recipes.Add(newRecipe);
@@ -79,7 +77,6 @@ public partial class MainWindow : Window
             MessageBox.Show("Please select a recipe to edit.", "No Selection", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
-
 
     private void DeleteRecipe_Click(object sender, RoutedEventArgs e)
     {
