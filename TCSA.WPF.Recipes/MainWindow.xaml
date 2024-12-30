@@ -16,21 +16,32 @@
 		<!-- Recipe List Section -->
 		<StackPanel Grid.Column="0" Margin="10">
 			<TextBlock Text="Recipes" 
-                       FontSize="16" FontWeight="Bold" 
-                       Margin="0 0 0 10" />
+               FontSize="16" FontWeight="Bold" 
+               Margin="0 0 0 10" />
 			<ListView Name="RecipeList" 
-                      SelectionChanged="RecipeList_SelectionChanged">
+              SelectionChanged="RecipeList_SelectionChanged">
 				<ListView.View>
 					<GridView>
 						<GridViewColumn Header="Recipe Name" 
-                                        DisplayMemberBinding="{Binding Name}" />
+                                DisplayMemberBinding="{Binding Name}" />
 					</GridView>
 				</ListView.View>
 			</ListView>
-			<Button Content="Add Recipe" 
-                    Click="AddRecipe_Click" 
-                    Margin="0 10 0 0" Width="100" HorizontalAlignment="Left" />
+
+			<!-- Buttons -->
+			<StackPanel Orientation="Horizontal" Margin="0 10 0 0">
+				<Button Content="Add" 
+                Click="AddRecipe_Click" 
+                Width="80" Margin="0 0 10 0" />
+				<Button Content="Edit" 
+                Click="EditRecipe_Click" 
+                Width="80" Margin="0 0 10 0" />
+				<Button Content="Delete" 
+                Click="DeleteRecipe_Click" 
+                Width="80" />
+			</StackPanel>
 		</StackPanel>
+
 
 		<!-- Recipe Details Section -->
 		<StackPanel Grid.Column="1" Margin="10">
